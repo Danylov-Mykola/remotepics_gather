@@ -8,8 +8,21 @@
 
 namespace RemotePics;
 
-
-interface FileToStoreType {
+/**
+ * Interface FileToStoreType
+ * @package RemotePics
+ * The LocalStorage object can work with objects which have been implemented from this Interface.
+ * You can use any source to get files for LocalStorage class.
+ */
+interface FileToStoreType
+{
+    /**
+     * @return string - file name for LocalStorage
+     */
     function getFileName();
+
+    /**
+     * @return mixed - raw contents for storing in file by LocalStorage
+     */
     function getFileContents();
 }
