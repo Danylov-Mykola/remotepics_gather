@@ -6,7 +6,7 @@
  * Time: 18:05
  */
 
-namespace RemotePics;
+namespace MykolaDanylov\RemotePics;
 
 /**
  * Class WebSitePics

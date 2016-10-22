@@ -6,7 +6,7 @@
  * Time: 20:02
  */
 
-namespace RemotePics;
+namespace MykolaDanylov\RemotePics;
 
 /**
  * Class WebPicture
@@ -28,7 +28,9 @@ class WebPicture implements
     function __construct($url)
     {
         $this->pictureName = pathinfo($url, PATHINFO_BASENAME);
-        $this->pictureContents = @file_get_contents($url);
+        /*@todo: uncomment this picture downloader!!!  */
+//        $this->pictureContents = @file_get_contents($url);
+        $this->pictureContents = @file_get_contents('D:\www\_remotepics_gather'.'\~dumb_image.txt');
         //        echo $url ."\n";
     }
 

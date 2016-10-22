@@ -6,7 +6,7 @@
  * Time: 19:56
  */
 
-namespace RemotePics;
+namespace MykolaDanylov\RemotePics;
 
 /**
  * Interface FileToStoreType
