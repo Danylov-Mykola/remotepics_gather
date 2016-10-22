@@ -8,6 +8,8 @@
 
 namespace MykolaDanylov\RemotePics;
 
+use MykolaDanylov\LocalStorage\LocalStorage as LocalStorage;
+
 /**
  * Class WebSitePics
  * @package RemotePics

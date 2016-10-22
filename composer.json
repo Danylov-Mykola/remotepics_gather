@@ -7,7 +7,8 @@
   },
   "autoload":{
     "psr-4":{
-      "MykolaDanylov\\RemotePics\\":"Classes/"
+      "MykolaDanylov\\RemotePics\\":"Classes/",
+      "MykolaDanylov\\LocalStorage\\":"Classes/LocalStorage/"
     }
   }
 }

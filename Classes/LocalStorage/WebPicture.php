@@ -6,7 +6,7 @@
  * Time: 20:02
  */
 
-namespace MykolaDanylov\RemotePics;
+namespace MykolaDanylov\LocalStorage;
 
 /**
  * Class WebPicture

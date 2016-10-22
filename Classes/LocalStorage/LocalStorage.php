@@ -6,7 +6,7 @@
  * Time: 20:08
  */
 
-namespace MykolaDanylov\RemotePics;
+namespace MykolaDanylov\LocalStorage;
 
 /**
  * Class LocalStorage

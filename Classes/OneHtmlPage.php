@@ -8,6 +8,9 @@
 
 namespace MykolaDanylov\RemotePics;
 
+use MykolaDanylov\LocalStorage\LocalStorage as LocalStorage;
+use MykolaDanylov\LocalStorage\WebPicture as WebPicture;
+
 /**
  * Class OneHtmlPage
  * @package RemotePics
