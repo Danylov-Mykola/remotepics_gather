@@ -33,7 +33,7 @@ class WebSitePics
      * @param array $extensionsList (on example: ['.jpg', '.gif'])
      * @param null|string $storagePath path where files will be stored. Relative to site root.
      */
-    function __construct($siteAddress, array $extensionsList, $storagePath = NULL)
+    function __construct($siteAddress, array $extensionsList, $storagePath = null)
     {
         $this->extensionsList = $extensionsList;
         if (!is_null($storagePath)) {
@@ -47,10 +47,16 @@ class WebSitePics
      * @author Mykola Danylov (n.danylov@gmail.com)
      * Prepare and store web pictures to local storage
      * @param string $urlPagePath path to web-page relative to domain. On example: "/sitemap"
+     * @throws RemotePicException
+     * @throws \Exception
      */
     public function preparePagePictures($urlPagePath)
     {
-        $this->pagesArr[$urlPagePath] = new OneHtmlPage($this, $urlPagePath, $this->extensionsList);
+        try {
+            $this->pagesArr[$urlPagePath] = new OneHtmlPage($this, $urlPagePath, $this->extensionsList);
+        } catch (RemotePicException $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -77,10 +83,16 @@ class WebSitePics
      * @author Mykola Danylov (n.danylov@gmail.com)
      * Returns list of local files
      * @return array of strings - locally stored files
+     * @throws RemotePicException
+     * @throws \Exception
      */
     public function getAllLocalPicsFilesList()
     {
-        $filesList = $this->storageObj->getPicturesFilesListByStalk($this->siteDomain);
+        try {
+            $filesList = $this->storageObj->getPicturesFilesListByStalk($this->siteDomain);
+        } catch (RemotePicException $e) {
+            throw $e;
+        }
         return $filesList;
     }
 }

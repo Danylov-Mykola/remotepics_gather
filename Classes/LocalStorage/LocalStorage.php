@@ -28,9 +28,9 @@ class LocalStorage
     /**
      * @param string|null $storagePath Where the root directory of local storage
      * @param null|array $availableExtensions - store files with the certain extensions only
-     * @throws \Exception
+     * @throws LocalStorageException
      */
-    function __construct($storagePath = NULL, $availableExtensions = NULL)
+    function __construct($storagePath = null, $availableExtensions = null)
     {
         $this->appRoot = $_SERVER["DOCUMENT_ROOT"];
         if (!is_null($storagePath)) {
@@ -41,13 +41,22 @@ class LocalStorage
             $this->availableExtensions = $availableExtensions;
         }
         if (is_file($this->storagePath)) {
-            throw new \Exception('Can not create directory for storage. File with same name already exists.');
+            throw new LocalStorageException(
+                '>>ERROR:: Can not create directory for storage. File with same name "'
+                . $this->storagePath . '" already exists.',
+                [':method' => __FUNCTION__, ':class' => __CLASS__, ':fileSystem'=> $this->storagePath],
+                LocalStorageException::E_SERIOUS
+            );
         }
         if (!file_exists($this->storagePath)) {
-            mkdir($this->storagePath, 0777, TRUE);
+            mkdir($this->storagePath, 0777, true);
         }
         if (!chmod($this->storagePath, 0777)) {
-            throw new \Exception('Can not make storage writable.');
+            throw new LocalStorageException(
+                '>>ERROR:: Can not make storage writable.',
+                [':method' => __FUNCTION__, ':class' => __CLASS__, ':fileSystem' => $this->storagePath],
+                LocalStorageException::E_SERIOUS
+            );
         };
     }
 
@@ -68,19 +77,28 @@ class LocalStorage
      * Returns files files list of the first after the root level of a local storage.
      *      All of files recursively.
      * @param string $stalkFolderName dir name in the root dir of local storage
-     * @param null|string $subPath @todo Does this parameter needed?
+     * @param null|string $subPath it can be used for get files from deeper folder only, non-recursive
      * @return array of strings - files list
+     * @throws LocalStorageException
      */
-    public function getPicturesFilesListByStalk($stalkFolderName, $subPath = NULL)
+    public function getPicturesFilesListByStalk($stalkFolderName, $subPath = null)
     {
         $dir = $this->appRoot . $this->storagePath . $stalkFolderName . $subPath;
         $storagePathLen = strlen($dir) + 1;
         $resultArr = [];
 
-        if (is_null($subPath)) {
-            $dirtyFilesList = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
-        } else {
-            $dirtyFilesList = new \IteratorIterator(new \RecursiveDirectoryIterator($dir));
+        try {
+            if (is_null($subPath)) {
+                $dirtyFilesList = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
+            } else {
+                $dirtyFilesList = new \IteratorIterator(new \RecursiveDirectoryIterator($dir));
+            }
+        } catch (\Exception $e) {
+            throw new LocalStorageException(
+                '>>ERROR:: ' . $e->getMessage(),
+                [':method' => __FUNCTION__, ':class' => __CLASS__, ':fileSystem' => $dir],
+                LocalStorageException::E_SERIOUS
+            );
         }
         foreach ($dirtyFilesList as $path => $object) {
             if (is_file($path)) {
@@ -100,20 +118,24 @@ class LocalStorage
 
     /**
      * @author Mykola Danylov (n.danylov@gmail.com)
-     * @param FileToStoreType $fileObj
-     * @param $subPath
-     * @todo method should return result of saving operation
+     * @param FileToStoreType $fileObj - object with file data and file name
+     * @param string $subPath - where to store, path to local storage relatively
+     * @throws LocalStorageException
      */
     public function store(FileToStoreType $fileObj, $subPath)
     {
         $path = $this->appRoot . $this->storagePath . $subPath;
-//        echo $path . "\n";
         $fullFilePath = $path . '/' . ($fileName = $fileObj->getFileName());
-//        echo $fileName . "\n\n";
         if (!file_exists($path)) {
-            mkdir($path, 0777, TRUE);
+            mkdir($path, 0777, true);
         }
-        file_put_contents($fullFilePath, $fileObj->getFileContents());
+        if (file_put_contents($fullFilePath, $fileObj->getFileContents()) === false){
+            throw new LocalStorageException(
+                '>>ERROR:: ' . 'Can not save file "' . $fullFilePath . '" to the local storage.',
+                [':method' => __FUNCTION__, ':class' => __CLASS__, ':fileSystem' => $fullFilePath],
+                LocalStorageException::E_SERIOUS
+            );
+        };
     }
 }
 

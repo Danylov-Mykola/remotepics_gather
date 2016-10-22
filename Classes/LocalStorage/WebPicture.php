@@ -8,14 +8,16 @@
 
 namespace MykolaDanylov\LocalStorage;
 
+use MykolaDanylov\RemotePics\Helper;
+use MykolaDanylov\RemotePics\RemotePicException;
+
 /**
  * Class WebPicture
  * @package RemotePics
  * This is a wrapper for file. It has used for LocalStorage object.
  * See FileToStoreType Interface as well.
  */
-class WebPicture implements
-    FileToStoreType
+class WebPicture implements FileToStoreType
 {
     /** @var string */
     private $pictureName;
@@ -23,15 +25,18 @@ class WebPicture implements
     private $pictureContents;
 
     /**
-     * @param $url - fully qualified url address
+     * @param string $url - fully qualified url address
+     * @throws RemotePicException
+     * @throws \Exception
      */
     function __construct($url)
     {
         $this->pictureName = pathinfo($url, PATHINFO_BASENAME);
-        /*@todo: uncomment this picture downloader!!!  */
-//        $this->pictureContents = @file_get_contents($url);
-        $this->pictureContents = @file_get_contents('D:\www\_remotepics_gather'.'\~dumb_image.txt');
-        //        echo $url ."\n";
+        try {
+            $this->pictureContents = Helper::getContents($url);
+        } catch  (RemotePicException $e) {
+            throw $e;
+        }
     }
 
     /**

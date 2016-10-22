@@ -33,6 +33,8 @@ class OneHtmlPage
      * @param WebSitePics $webPagePicsObj - object with web site data
      * @param $pagePath - site page path relative to site domain
      * @param $availableExtensions array of strings ".jpg" ...
+     * @throws RemotePicException
+     * @throws \Exception
      */
     function __construct(WebSitePics $webPagePicsObj, $pagePath, $availableExtensions)
     {
@@ -40,21 +42,18 @@ class OneHtmlPage
         $this->pagePath = $pagePath;
         $this->siteAddress = $webPagePicsObj->getSiteDomain();
         $this->storagePath = $webPagePicsObj->getStoragePath();
-        $this->localStorageObj = new LocalStorage($this->storagePath, $availableExtensions);
-        $this->crawlPagePics();
+        try {
+            $this->localStorageObj = new LocalStorage($this->storagePath, $availableExtensions);
+        } catch (RemotePicException $e) {
+            throw $e;
+        }
+        try {
+            $this->crawlPagePics();
+        } catch (RemotePicException $e) {
+            throw $e;
+        }
     }
 
-
-    /**
-     * @author Mykola Danylov (n.danylov@gmail.com)
-     * Returns list of files stored recently
-     * @return array of locally stored pictures (including path)
-     */
-    /**@todo refine */
-    public function getLocalPicsList()
-    {
-        return $this->localStorageObj->getPicturesFilesListByStalk($this->siteAddress, $this->pagePath);
-    }
 
     /**
      * @author Mykola Danylov (n.danylov@gmail.com)
@@ -63,10 +62,17 @@ class OneHtmlPage
      */
     private function crawlPagePics()
     {
-        $remotePicturesList = self::parsePageForPics($this->siteAddress . $this->pagePath, $this->availableExtensions);
-//        var_dump($remotePicturesList); die;
+        try {
+            $remotePicturesList = self::parsePageForPics($this->siteAddress . $this->pagePath, $this->availableExtensions);
+        } catch (RemotePicException $e) {
+            throw $e;
+        }
         foreach ($remotePicturesList as $remoteUrl) {
-            $webPicture = new WebPicture($remoteUrl);
+            try {
+                $webPicture = new WebPicture($remoteUrl);
+            } catch  (RemotePicException $e) {
+                throw $e;
+            }
             $this->localStorageObj->store(
                 $webPicture,
                 $this->siteAddress
@@ -82,6 +88,7 @@ class OneHtmlPage
      * @param $url - web page url
      * @param array $availableExtensions - array of strings ".jpg" ...
      * @return array of strings - list of web links to pictures
+     * @throws RemotePicException
      * @throws \Exception
      */
     public static function parsePageForPics($url, array $availableExtensions)
@@ -91,27 +98,31 @@ class OneHtmlPage
         $httpAddr = 'http://' . $url;
         $domain = parse_url($httpAddr, PHP_URL_HOST);
         try {
-            $htmlPage = self::getContents('http://' . $url);
-        } catch (\Exception $e) {
             /**@todo : $htmlPage might have not been defined! */
-            echo "\n\n" . $e->getMessage() . "\n\n";
+            $htmlPage = Helper::getContents('http://' . $url);
+        } catch (RemotePicException $e) {
+            throw $e;
         }
 
         $picturesListFromPage = [];
         $parseResult = preg_match_all($regExp, $htmlPage, $picturesListFromPage);
-        if ($parseResult === FALSE) {
-            throw new \Exception('Page parsing error.');
+        if ($parseResult === false) {
+            throw new RemotePicException(
+                '>>ERROR:: Page parsing error.',
+                [':method' => __FUNCTION__, ':class' => __CLASS__],
+                RemotePicException::E_SERIOUS
+            );
         }
         $picturesListFromPage = $picturesListFromPage[2];
         $resultPictureList = [];
         foreach ($picturesListFromPage as $picturePath) {
             $picturePath = str_replace(['../', './'], '', $picturePath, $replacedCount);
 
-            $extensionNotAllowed = TRUE;
+            $extensionNotAllowed = true;
             foreach ($availableExtensions as $extension) {
                 $realFileExtension = substr($picturePath, -strlen($extension));
                 if ($extension === $realFileExtension) {
-                    $extensionNotAllowed = FALSE;
+                    $extensionNotAllowed = false;
                     break;
                 }
             }
@@ -129,50 +140,6 @@ class OneHtmlPage
             $resultPictureList[] = 'http://' . $domain . '/' . $picturePath;
         }
         return $resultPictureList;
-    }
-
-
-    //        $urlDomain = parse_url($url, PHP_URL_HOST);
-    //        $urlPath = parse_url($url, PHP_URL_PATH);
-    //        $dirName = pathinfo($urlPath, PATHINFO_DIRNAME);
-    //        $fileBaseName = pathinfo($urlPath, PATHINFO_BASENAME);
-    //        $fileExt = pathinfo($urlPath, PATHINFO_EXTENSION);
-
-    /**
-     * @author Mykola Danylov (n.danylov@gmail.com)
-     * Helper method to get web page content (text)
-     * @param $url - page url
-     * @return string - page text
-     * @throws \Exception
-     */
-    private static function getContents($url)
-    {
-        $opts = ['http' =>
-            [
-                'method' => 'GET',
-                'header' => "Content-Type: application/x-www-form-urlencoded\r\n"
-                            //. "Content-Length: ".strlen($postData)."\r\n"
-                            . "User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36"
-                            . " (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36\r\n",
-                //'content' => $postData,
-                'timeout' => 5,
-                'accept' => 'image/webp,image/*,*/*;q=0.8',
-
-            ]
-        ];
-        $headToQuery = stream_context_create($opts);
-        $serverString = @file_get_contents($url, NULL, $headToQuery);
-        $headers = $http_response_header; //get_headers($mainServerScriptName);
-        if ($headers AND $serverString !== FALSE) {
-            $httpCode = substr($headers[0], 9, 3);
-        } else {
-            $httpCode = 0;
-        }
-
-        if (($httpCode <> 200)) {
-            throw new \Exception('Can not get page for parsing.');
-        }
-        return $serverString;
     }
 }
 
