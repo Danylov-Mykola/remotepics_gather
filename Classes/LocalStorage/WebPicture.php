@@ -35,7 +35,9 @@ class WebPicture implements FileToStoreType
         try {
             $this->pictureContents = Helper::getContents($url);
         } catch  (RemotePicException $e) {
-            throw $e;
+            if ($e->getCode() === LocalStorageException::E_SERIOUS) {
+                throw $e;
+            }
         }
     }
 

@@ -42,7 +42,7 @@ class Helper
 
         if (($httpCode <> 200)) {
             throw new RemotePicException(
-                '>>WARNING:: Can not get page for parsing ("' . $url . '").',
+                '>>WARNING:: Can not get page or file ("' . $url . '").',
                 [':method' => __FUNCTION__, ':class' => __CLASS__, ':fileSystem' => $url],
                 RemotePicException::E_JUST_FOR_USER
             );
