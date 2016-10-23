@@ -43,7 +43,7 @@ class WebSitePics
         $this->storageObj = new LocalStorage($this->storagePath, $this->extensionsList);
     }
 
-    public static function get($siteAddress, array $extensionsList, $storagePath = null)
+    public static function getStatic($siteAddress, array $extensionsList, $storagePath = null)
     {
         return new static($siteAddress, $extensionsList, $storagePath);
     }
