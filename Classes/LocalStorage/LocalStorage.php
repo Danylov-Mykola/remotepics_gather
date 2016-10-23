@@ -36,22 +36,23 @@ class LocalStorage
         if (!is_null($storagePath)) {
             $this->storagePath = $storagePath;
         }
+        $absoluteStoragePath = $this->appRoot . $this->storagePath;
         $this->storagePathLen = strlen($this->storagePath) + 1;
         if (!is_null($availableExtensions)) {
             $this->availableExtensions = $availableExtensions;
         }
-        if (is_file($this->storagePath)) {
+        if (is_file($absoluteStoragePath)) {
             throw new LocalStorageException(
                 '>>ERROR:: Can not create directory for storage. File with same name "'
-                . $this->storagePath . '" already exists.',
+                . $absoluteStoragePath . '" already exists.',
                 [':method' => __FUNCTION__, ':class' => __CLASS__, ':fileSystem'=> $this->storagePath],
                 LocalStorageException::E_SERIOUS
             );
         }
-        if (!file_exists($this->storagePath)) {
-            mkdir($this->storagePath, 0777, true);
+        if (!file_exists($absoluteStoragePath)) {
+            mkdir($absoluteStoragePath, 0777, true);
         }
-        if (!chmod($this->storagePath, 0777)) {
+        if (!chmod($absoluteStoragePath, 0777)) {
             throw new LocalStorageException(
                 '>>ERROR:: Can not make storage writable.',
                 [':method' => __FUNCTION__, ':class' => __CLASS__, ':fileSystem' => $this->storagePath],
