@@ -43,10 +43,16 @@ class WebSitePics
         $this->storageObj = new LocalStorage($this->storagePath, $this->extensionsList);
     }
 
+    public static function get($siteAddress, array $extensionsList, $storagePath = null)
+    {
+        return new static($siteAddress, $extensionsList, $storagePath);
+    }
+
     /**
      * @author Mykola Danylov (n.danylov@gmail.com)
      * Prepare and store web pictures to local storage
      * @param string $urlPagePath path to web-page relative to domain. On example: "/sitemap"
+     * @return WebSitePics $this
      * @throws RemotePicException
      * @throws \Exception
      */
@@ -57,6 +63,7 @@ class WebSitePics
         } catch (RemotePicException $e) {
             throw $e;
         }
+        return $this;
     }
 
     /**
