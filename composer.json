@@ -1,6 +1,6 @@
 {
   "name": "mykola-danylov/remotepics_gather",
-  "description": "This is a package for hexa.com.ua testing work",
+  "description": "This is a package for get files from other sites and store them into own site",
   "version": "1.0.3",
   "require":{
     "php":">=5.4.0"

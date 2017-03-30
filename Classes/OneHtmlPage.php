@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is a part of hexa.my project.
+ * This file is a part of remotepix_gather.package project.
  * Author: Mykola Danylov (n.danylov@gmail.com)
  * Date: 20.10.2016
  * Time: 20:08
